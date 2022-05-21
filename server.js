@@ -2,6 +2,7 @@ const dbConfig = require("./config/dbConfig.js");
 const mongoose = require("mongoose");
 const chatSchema = require("./models/chat.model");
 const io = require("socket.io")(3000);
+const ObjectID = require("mongoose");
 
 mongoose.Promise = global.Promise;
 
@@ -23,15 +24,38 @@ const users = {};
 io.on("connection", (socket) => {
   socket.on("new-user", (name) => {
     users[socket.id] = name;
-    socket.broadcast.emit("user-connected", name);
+    chatSchema.find({ name }).then((results) => {
+      for (let result of results) {
+        const dateFunc = (timeStamp) => {
+          const date = timeStamp.getDate();
+          const month = timeStamp.getMonth();
+          const year = timeStamp.getFullYear();
+          return `${date}-${month}-${year}`;
+        };
+
+        let timestamp = dateFunc(result._id.getTimestamp());
+        let todayDate = dateFunc(new Date());
+        let message;
+
+        if (timestamp == todayDate) {
+          const hour = result._id.getTimestamp().getHours();
+          const minute = result._id.getTimestamp().getMinutes();
+
+          message = `${result.message}   ${hour}:${minute}`;
+        } else {
+          message = `${result.message}   ${timestamp}`;
+        }
+        socket.emit("list-messages", message);
+      }
+    });
+    // socket.broadcast.emit("user-connected", name);
   });
-  socket.on("send-chat-message", async (message) => {
+  socket.on("send-chat-message", async (message, t) => {
     socket.broadcast.emit("chat-message", {
       message: message,
       name: users[socket.id],
+      t,
     });
-
-    console.log("message::", message);
 
     const data = new chatSchema({
       name: users[socket.id],
@@ -41,12 +65,8 @@ io.on("connection", (socket) => {
     await data.save();
     console.log("message saved in database successfully!");
   });
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("user-disconnected", users[socket.id]);
-    delete users[socket.id];
-  });
+  // socket.on("disconnect", () => {
+  //   socket.broadcast.emit("user-disconnected", users[socket.id]);
+  //   delete users[socket.id];
+  // });
 });
-
-// app.listen(3000, () => {
-//   console.log("server has started...");
-// });

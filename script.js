@@ -8,22 +8,28 @@ appendMessage("You joined");
 socket.emit("new-user", name);
 
 socket.on("chat-message", (data) => {
-  appendMessage(`${data.name}: ${data.message}`);
+  appendMessage(`${data.name}: ${data.message}   ${data.t}`);
 });
 
-socket.on("user-connected", (name) => {
-  appendMessage(`${name} connected`);
+socket.on("list-messages", (result) => {
+  appendMessage(result);
 });
 
-socket.on("user-disconnected", (name) => {
-  appendMessage(`${name} disconnected`);
-});
+// socket.on("user-connected", (name) => {
+//   appendMessage(`${name} connected`);
+// });
+
+// socket.on("user-disconnected", (name) => {
+//   appendMessage(`${name} disconnected`);
+// });
 
 messageForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const message = messageInput.value;
-  appendMessage(`You: ${message}`);
-  socket.emit("send-chat-message", message);
+  const d = new Date();
+  const t = d.toTimeString().split(" ")[0];
+  appendMessage(`You: ${message}     ${t}`);
+  socket.emit("send-chat-message", message, t);
   messageInput.value = "";
 });
 

@@ -2,7 +2,7 @@
   "name": "chatapp_with_socket.io",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "devStart": "nodemon server.js"
   },
@@ -14,6 +14,6 @@
   "dependencies": {
     "express": "^4.18.1",
     "mongoose": "^6.3.3",
-    "socket.io": "^4.5.1"
+    "socket.io": "^2.4.1"
   }
 }
