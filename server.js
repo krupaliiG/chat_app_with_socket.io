@@ -37,13 +37,13 @@ io.on("connection", (socket) => {
         let todayDate = dateFunc(new Date());
         let message;
 
-        if (timestamp == todayDate) {
-          const hour = result._id.getTimestamp().getHours();
-          const minute = result._id.getTimestamp().getMinutes();
+        const hour = result._id.getTimestamp().getHours();
+        const minute = result._id.getTimestamp().getMinutes();
 
+        if (timestamp == todayDate) {
           message = `${result.message}   ${hour}:${minute}`;
         } else {
-          message = `${result.message}   ${timestamp}`;
+          message = `${result.message}   ${timestamp} ${hour}:${minute}`;
         }
         socket.emit("list-messages", message);
       }
